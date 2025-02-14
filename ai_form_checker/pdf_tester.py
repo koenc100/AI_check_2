@@ -2,29 +2,52 @@ import streamlit as st
 import base64
 import os
 
-def display_pdf(file_path):
-    """Read a PDF file and return an iframe embedding the PDF."""
-    if not os.path.exists(file_path):
-        st.error(f"File not found: {file_path}")
-        return
-
-    with open(file_path, "rb") as f:
-        base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+def display_pdf(pdf_bytes, width=700, height=1000):
+    """
+    Display a PDF file in the Streamlit app using an iframe.
     
-    # Embed the PDF in an iframe
+    Parameters:
+    - pdf_bytes: PDF file content in bytes.
+    - width: Width of the iframe (in pixels).
+    - height: Height of the iframe (in pixels).
+    """
+    base64_pdf = base64.b64encode(pdf_bytes).decode("utf-8")
     pdf_display = f"""
-    <iframe src="data:application/pdf;base64,{base64_pdf}" width="700" height="1000" type="application/pdf">
-    </iframe>
+        <iframe src="data:application/pdf;base64,{base64_pdf}" 
+                width="{width}" height="{height}" 
+                type="application/pdf">
+        </iframe>
     """
     st.markdown(pdf_display, unsafe_allow_html=True)
 
 def main():
-    st.title("Streamlit PDF Viewer Test")
+    st.title("PDF Viewer & Uploader")
     
-    # Specify your PDF file path here
-    pdf_file = "sample.pdf"  # Ensure sample.pdf is in your repo
+    st.markdown("## Display a Default PDF")
+    default_pdf_path = "sample.pdf"  # Ensure this file is in your repository
+
+    if st.button("Load Default PDF"):
+        if os.path.exists(default_pdf_path):
+            try:
+                with open(default_pdf_path, "rb") as f:
+                    pdf_bytes = f.read()
+                display_pdf(pdf_bytes)
+            except Exception as e:
+                st.error(f"Error reading default PDF: {e}")
+        else:
+            st.error(f"Default PDF not found at {default_pdf_path}.")
     
-    display_pdf(pdf_file)
+    st.markdown("---")
+    st.markdown("## Upload and Display Your Own PDF")
+    
+    uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
+    
+    if uploaded_file is not None:
+        try:
+            pdf_bytes = uploaded_file.read()
+            display_pdf(pdf_bytes)
+        except Exception as e:
+            st.error(f"Error displaying uploaded PDF: {e}")
 
 if __name__ == "__main__":
     main()
