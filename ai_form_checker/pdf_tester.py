@@ -1,6 +1,7 @@
 import streamlit as st
 import base64
 import os
+import streamlit.components.v1 as components
 
 def display_pdf(pdf_bytes, width=700, height=1000):
     """
@@ -18,7 +19,8 @@ def display_pdf(pdf_bytes, width=700, height=1000):
                 type="application/pdf">
         </iframe>
     """
-    st.markdown(pdf_display, unsafe_allow_html=True)
+    # Use components.html to embed the iframe
+    components.html(pdf_display, height=height, width=width)
 
 def main():
     st.title("PDF Viewer & Uploader")
